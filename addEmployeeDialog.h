@@ -2,21 +2,39 @@
 #define ADDEMPLOYEEDIALOG_H
 
 #include <QDialog>
+#include <QAbstractButton>
+
+class QLineEdit;
 
 namespace Ui {
-class Dialog;
+class addEmployeeDialog;
 }
 
-class Dialog : public QDialog
+enum class EmployeeType{
+    Monthly  = 0,
+    Hourly   = 1,
+    Salesman = 2
+};
+
+
+
+class addEmployeeDialog : public QDialog
 {
     Q_OBJECT
 
 public:
-    explicit Dialog(QWidget *parent = 0);
-    ~Dialog();
+    explicit addEmployeeDialog(QWidget *parent = 0);
+    ~addEmployeeDialog();
 
 private:
-    Ui::Dialog *ui;
+    void setLineEditValidator(QLineEdit* lineEdit, int begin, int end);
+
+private slots:
+    void addData();
+
+private:
+    Ui::addEmployeeDialog *ui;
+    EmployeeType employeetype;
 };
 
 #endif // ADDEMPLOYEEDIALOG_H

@@ -6,8 +6,6 @@
 class Personnel : public QObject
 {
     Q_OBJECT
-    Q_PROPERTY(QString m_Name READ getName WRITE setName)
-    Q_PROPERTY(int m_SSN READ getSSN WRITE setSSN)
 
 public:
     explicit Personnel(int ssNumber, const QString& name,QObject *parent = 0);
