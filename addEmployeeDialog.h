@@ -25,12 +25,16 @@ class addEmployeeDialog : public QDialog
 public:
     explicit addEmployeeDialog(QWidget *parent = 0);
     ~addEmployeeDialog();
+    void newEmployee(EmployeeType& type, int& ssn, QString& name, int& mCompensation, int& hCompensation, double& doneHours, double& bonus, int& realizedOutcome);
+
+public slots:
+    int exec() override;
+
+signals:
+    void addEmployeeFromUser();
 
 private:
     void setLineEditValidator(QLineEdit* lineEdit, int begin, int end);
-
-private slots:
-    void addData();
 
 private:
     Ui::addEmployeeDialog *ui;

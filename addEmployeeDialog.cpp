@@ -1,6 +1,5 @@
 #include "addEmployeeDialog.h"
 #include "ui_addemployeedialog.h"
-#include "mainwindow.h"
 
 #include <QLineEdit>
 
@@ -70,7 +69,8 @@ addEmployeeDialog::addEmployeeDialog(QWidget *parent) :
         }
     });
 
-    connect(ui->okPushButton, SIGNAL(clicked()), SLOT(addData()));
+    connect(ui->okPushButton,SIGNAL(clicked()),this,SLOT(accept()));
+    connect(ui->cancelPushButton,SIGNAL(clicked()),this,SLOT(reject()));
 
 }
 
@@ -85,22 +85,31 @@ void addEmployeeDialog::setLineEditValidator(QLineEdit* lineEdit, int begin, int
     lineEdit->setValidator(validator);
 }
 
-void addEmployeeDialog::addData()
+int addEmployeeDialog::exec()
 {
-    MainWindow* mainWindow = dynamic_cast<MainWindow*>(this->parent());
-    if(mainWindow != nullptr)
-    {
-        const int     ssn       = ui->ssnLineEdit->text().toInt();
-        const QString name      = ui->nameLineEdit->text();
-        const int     mComp     = ui->monthlyCompLineEdit->text().toInt();
-        const int     hComp     = ui->hourlyCompLineEdit->text().toInt();
-        const double  dHours    = ui->doneHoursLineEdit->text().toDouble();
-        const double  bonus     = ui->bonusLineEdit->text().toDouble();
-        const int     rOutcome  = ui->realizedOutcomeLineEdit->text().toInt();
+    ui->monthlyRadioButton->setChecked(true);
+    ui->ssnLineEdit->setText("");
+    ui->nameLineEdit->setText("");
+    ui->monthlyCompLineEdit->setText("");
+    ui->hourlyCompLineEdit->setText("");
+    ui->doneHoursLineEdit->setText("");
+    ui->bonusLineEdit->setText("");
+    ui->realizedOutcomeLineEdit->setText("");
 
-        mainWindow->employeeInfoGetter(employeetype,ssn,name,mComp,hComp,dHours,bonus,rOutcome);
-    }
+    employeetype = EmployeeType::Monthly;
 
-    close();
+    return QDialog::exec();
+}
+
+void addEmployeeDialog::newEmployee(EmployeeType& type, int& ssn, QString& name, int& mCompensation, int& hCompensation, double& doneHours, double& bonus, int& realizedOutcome)
+{
+    type             = employeetype;
+    ssn              = ui->ssnLineEdit->text().toInt();
+    name             = ui->nameLineEdit->text();
+    mCompensation    = ui->monthlyCompLineEdit->text().toInt();
+    hCompensation    = ui->hourlyCompLineEdit->text().toInt();
+    doneHours        = ui->doneHoursLineEdit->text().toDouble();
+    bonus            = ui->bonusLineEdit->text().toDouble();
+    realizedOutcome  = ui->realizedOutcomeLineEdit->text().toInt();
 }
 

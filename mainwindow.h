@@ -27,10 +27,11 @@ public:
     ~MainWindow();
 
     void fillEmployeeTable(const QVector<Personnel*>& employeeList);
-    void employeeInfoGetter(const EmployeeType type, const int ssn, const QString& name, const int mCompensation, const int hCompensation, const double doneHours, const double bonus,const int realizedOutcome);
+    //void employeeInfoGetter(const EmployeeType type, const int ssn, const QString& name, const int mCompensation, const int hCompensation, const double doneHours, const double bonus,const int realizedOutcome);
 private:
     void showEmployeeAddWidget();
     void addEmployee(Personnel* p, int i, int j);
+    void addEmployeeFromUser();
     void removeEmployeeFromTable();
 private:
     Ui::MainWindow* ui;

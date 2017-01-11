@@ -32,7 +32,6 @@ MainWindow::MainWindow(QWidget *parent) :
         removeEmployeeFromTable();
     });
 
-
 }
 
 MainWindow::~MainWindow()
@@ -75,52 +74,56 @@ void MainWindow::addEmployee(Personnel* p,int i, int j)
 
 void MainWindow::showEmployeeAddWidget()
 {
-  //create add employee widget
    if(addDialog->exec())
    {
-       //add employee
-   }
-   else
-   {
-       //cancel
+        addEmployeeFromUser();
    }
 
 }
 
- void MainWindow::removeEmployeeFromTable()
- {
-     QList<QTableWidgetItem*> selectedRows = ui->employeeListTableWidget->selectedItems();
-     while(!selectedRows.isEmpty())
-     {
-         ui->employeeListTableWidget->removeRow(selectedRows.at(0)->row());
-         selectedRows = ui->employeeListTableWidget->selectedItems();
-     }
- }
+void MainWindow::removeEmployeeFromTable()
+{
+    QList<QTableWidgetItem*> selectedRows = ui->employeeListTableWidget->selectedItems();
+    while(!selectedRows.isEmpty())
+    {
+        ui->employeeListTableWidget->removeRow(selectedRows.at(0)->row());
+        selectedRows = ui->employeeListTableWidget->selectedItems();
+    }
+}
 
 
- void MainWindow::employeeInfoGetter(const EmployeeType type, const int ssn, const QString& name, const int mCompensation, const int hCompensation, const double doneHours, const double bonus,const int realizedOutcome )
- {
-     Personnel* p;
-     if(type == EmployeeType::Salesman)
-     {
-         p = new Salesman(ssn,name,mCompensation,bonus,realizedOutcome);
-     }
-     else if(type == EmployeeType::Hourly)
-     {
-        p = new HourlyCompensationEmployee(ssn,name,hCompensation,doneHours);
-     }
-     else //if(type == EmployeeType::Monthly)
-     {
-        p = new MonthlyPaidEmployee(ssn,name,mCompensation);
-     }
+void MainWindow::addEmployeeFromUser()
+{
+    EmployeeType type;
+    int          ssn;
+    QString      name;
+    int          mCompensation;
+    int          hCompensation;
+    double       doneHours;
+    double       bonus;
+    int          realizedOutcome;
+    addDialog->newEmployee(type,ssn, name, mCompensation,hCompensation,doneHours,bonus,realizedOutcome);
 
-     ui->employeeListTableWidget->insertRow(ui->employeeListTableWidget->rowCount());
-     for(int j = 0; j < columnCount; ++j)
-     {
-       addEmployee(p,ui->employeeListTableWidget->rowCount()-1,j);
-     }
+    Personnel* p;
+    if(type == EmployeeType::Salesman)
+    {
+        p = new Salesman(ssn,name,mCompensation,bonus,realizedOutcome);
+    }
+    else if(type == EmployeeType::Hourly)
+    {
+       p = new HourlyCompensationEmployee(ssn,name,hCompensation,doneHours);
+    }
+    else //if(type == EmployeeType::Monthly)
+    {
+       p = new MonthlyPaidEmployee(ssn,name,mCompensation);
+    }
 
- }
+    ui->employeeListTableWidget->insertRow(ui->employeeListTableWidget->rowCount());
+    for(int j = 0; j < columnCount; ++j)
+    {
+      addEmployee(p,ui->employeeListTableWidget->rowCount()-1,j);
+    }
+}
 
 
 
