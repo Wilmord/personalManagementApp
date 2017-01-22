@@ -1,5 +1,7 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
+#include <QLabel>
+#include <QLineEdit>
 
 #include "hourlycompensationemployee.h"
 #include "salesman.h"
@@ -30,6 +32,11 @@ MainWindow::MainWindow(QWidget *parent) :
 
     connect(ui->removeEmployeePushButton,&QPushButton::clicked,[this](){
         removeEmployeeFromTable();
+    });
+
+    //TODO: any row selected, create info widget dynamically
+    connect(ui->employeeListTableWidget,&QTableWidget::cellClicked,[this](int rw,int col){
+        createInfoWidget(rw);
     });
 
 }
@@ -127,8 +134,34 @@ void MainWindow::addEmployeeFromUser()
 
 
 
+void MainWindow::createInfoWidget(const int row)
+{
+    clearEmployeeInfoWidget();
 
+    QLabel* nameLabel = new QLabel("Name:",this);
+    QLineEdit* nameEdit = new QLineEdit(ui->employeeListTableWidget->item(row,1)->text(),this);
+    nameEdit->setReadOnly(true);
 
+    QHBoxLayout* ly = new QHBoxLayout;
+    ly->addWidget(nameLabel);
+    ly->addWidget(nameEdit);
+
+    ui->employeeInfoWidget->setLayout(ly);
+}
+
+void MainWindow::clearEmployeeInfoWidget()
+{
+    foreach (QWidget *w, ui->employeeInfoWidget->findChildren<QWidget*>())
+        delete w;
+
+    if(ui->employeeInfoWidget->layout())
+    {
+        QLayoutItem* ly_item;
+        while(( ly_item = ui->employeeInfoWidget->layout()->takeAt(0)) != nullptr )
+            delete ly_item;
+        delete ui->employeeInfoWidget->layout();
+     }
+}
 
 
 

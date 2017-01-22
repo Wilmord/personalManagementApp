@@ -33,6 +33,8 @@ private:
     void addEmployee(Personnel* p, int i, int j);
     void addEmployeeFromUser();
     void removeEmployeeFromTable();
+    void createInfoWidget(const int row);
+    void clearEmployeeInfoWidget();
 private:
     Ui::MainWindow* ui;
 
