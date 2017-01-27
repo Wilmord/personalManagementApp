@@ -2,6 +2,9 @@
 #include "ui_mainwindow.h"
 #include <QLabel>
 #include <QLineEdit>
+#include <QXmlStreamWriter>
+#include <QFile>
+#include <QMessageBox>
 
 #include "hourlycompensationemployee.h"
 #include "salesman.h"
@@ -34,8 +37,12 @@ MainWindow::MainWindow(QWidget *parent) :
         removeEmployeeFromTable();
     });
 
+    connect(ui->savePushButton,&QPushButton::clicked,[this](){
+        saveList();
+    });
+
     //TODO: any row selected, create info widget dynamically
-    connect(ui->employeeListTableWidget,&QTableWidget::cellClicked,[this](int rw,int col){
+    connect(ui->employeeListTableWidget,&QTableWidget::cellClicked,[this](int rw){
         createInfoWidget(rw);
     });
 
@@ -60,7 +67,9 @@ void MainWindow::fillEmployeeTable(const QVector<Personnel*>& employeeList)
             {
                addEmployee(employeeList.at(i),i,j);
             }
+            personalList.push_back(employeeList.at(i));
         }
+
 }
 
 
@@ -93,6 +102,7 @@ void MainWindow::removeEmployeeFromTable()
     QList<QTableWidgetItem*> selectedRows = ui->employeeListTableWidget->selectedItems();
     while(!selectedRows.isEmpty())
     {
+        personalList.removeAt(selectedRows.at(0)->row());
         ui->employeeListTableWidget->removeRow(selectedRows.at(0)->row());
         selectedRows = ui->employeeListTableWidget->selectedItems();
     }
@@ -130,6 +140,8 @@ void MainWindow::addEmployeeFromUser()
     {
       addEmployee(p,ui->employeeListTableWidget->rowCount()-1,j);
     }
+
+    personalList.push_back(p);
 }
 
 
@@ -138,15 +150,23 @@ void MainWindow::createInfoWidget(const int row)
 {
     clearEmployeeInfoWidget();
 
-    QLabel* nameLabel = new QLabel("Name:",this);
-    QLineEdit* nameEdit = new QLineEdit(ui->employeeListTableWidget->item(row,1)->text(),this);
-    nameEdit->setReadOnly(true);
+    QGridLayout* gridLayout = new QGridLayout;
 
-    QHBoxLayout* ly = new QHBoxLayout;
-    ly->addWidget(nameLabel);
-    ly->addWidget(nameEdit);
+    createLabelAndLineEdit(QStringLiteral("Name:"),personalList.at(row)->getName(),gridLayout,0);
+    createLabelAndLineEdit(QStringLiteral("SSN:"),QString::number(personalList.at(row)->getSSN()),gridLayout,1);
 
-    ui->employeeInfoWidget->setLayout(ly);
+    ui->employeeInfoWidget->setLayout(gridLayout);
+}
+
+
+void MainWindow::createLabelAndLineEdit(const QString& labelStr, const QString& lineEditStr,QGridLayout* ly,int position)
+{
+    QLabel* label = new QLabel(labelStr,this);
+    QLineEdit* lineEdit = new QLineEdit(lineEditStr,this);
+    lineEdit->setReadOnly(true);
+
+    ly->addWidget(label,position,0);
+    ly->addWidget(lineEdit,position,1);
 }
 
 void MainWindow::clearEmployeeInfoWidget()
@@ -163,6 +183,75 @@ void MainWindow::clearEmployeeInfoWidget()
      }
 }
 
+void MainWindow::saveList()
+{
+    QXmlStreamWriter xmlWriter;
+    QFile file("Personal_List.xml");
+    if (!file.open(QIODevice::WriteOnly))
+    {
+       QMessageBox::warning(0, "Error!", "Error opening file");
+    }
+    else
+    {
+        xmlWriter.setDevice(&file);
+        /* Writes a document start with the XML version number. */
+        xmlWriter.writeStartDocument();
+        xmlWriter.writeCharacters("\n");
+        xmlWriter.writeStartElement("Employees");
+        xmlWriter.writeCharacters("\n");
+        foreach (const auto p, personalList)
+        {
+            xmlWriter.writeCharacters("\t");
+            xmlWriter.writeStartElement("Employee");
+            xmlWriter.writeAttribute("SSN",QString::number(p->getSSN()));
+            xmlWriter.writeAttribute("name",p->getName());
 
+            auto salesEmployee = dynamic_cast<Salesman*>(p);
+            if(salesEmployee)
+            {
+                xmlWriter.writeAttribute("Monthly Compensation",QString::number(salesEmployee->getMonthlyComp()));
+                xmlWriter.writeAttribute("Bonus",QString::number(salesEmployee->getBonus()));
+                xmlWriter.writeAttribute("Realized outcome",QString::number(salesEmployee->getRealizedOutcome()));
+                xmlWriter.writeAttribute("Outcome claim",QString::number(salesEmployee->outcomeClaim()));
+                xmlWriter.writeAttribute("Salary",QString::number(salesEmployee->calculateSalary()));
+                xmlWriter.writeEndElement();
+                xmlWriter.writeCharacters("\n");
+                continue;
+            }
+
+            auto hEmployee = dynamic_cast<HourlyCompensationEmployee*>(p);
+            if(hEmployee)
+            {
+                xmlWriter.writeAttribute("Hourly Compensation",QString::number(hEmployee->getHourlyComp()));
+                xmlWriter.writeAttribute("Done Hours",QString::number(hEmployee->getHourlyComp()));
+                xmlWriter.writeAttribute("Salary",QString::number(hEmployee->calculateSalary()));
+                xmlWriter.writeEndElement();
+                xmlWriter.writeCharacters("\n");
+                continue;
+            }
+
+            auto mEmployee = dynamic_cast<MonthlyPaidEmployee*>(p);
+            if(mEmployee)
+            {
+                xmlWriter.writeAttribute("Monthly Compensation",QString::number(mEmployee->getMonthlyComp()));
+                xmlWriter.writeAttribute("Salary",QString::number(mEmployee->calculateSalary()));
+                xmlWriter.writeEndElement();
+                xmlWriter.writeCharacters("\n");
+                continue;
+            }
+
+            /*close tag student  */
+            xmlWriter.writeEndElement();
+            xmlWriter.writeCharacters("\n");
+        }
+
+
+        /*end tag students*/
+        xmlWriter.writeEndElement();
+        /*end document */
+        xmlWriter.writeEndDocument();
+    }
+
+}
 
 

@@ -7,6 +7,7 @@
 #include "addEmployeeDialog.h"
 
 class Personnel;
+class QGridLayout;
 
 namespace Ui {
 class MainWindow;
@@ -35,6 +36,8 @@ private:
     void removeEmployeeFromTable();
     void createInfoWidget(const int row);
     void clearEmployeeInfoWidget();
+    void createLabelAndLineEdit(const QString& labelStr, const QString& lineEditStr,QGridLayout* ly,int position);
+    void saveList();
 private:
     Ui::MainWindow* ui;
 
@@ -42,6 +45,7 @@ private:
 
     int columnCount;
     QStringList m_TableHeader;
+    QVector<Personnel*> personalList;
 };
 
 #endif // MAINWINDOW_H
